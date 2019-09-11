@@ -15,7 +15,8 @@
 #include "Constants.h"
 #include <iostream>
 #include <time.h>
-
+#include <vector>
+#include <CString>
 using namespace std;
 
 #ifdef _DEBUG
@@ -76,6 +77,7 @@ BEGIN_MESSAGE_MAP(CMFCApplication5Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFCApplication5Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFCApplication5Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -182,26 +184,127 @@ void CMFCApplication5Dlg::OnBnClickedButton1()
 	const float     NODATA_value = -9999;
 
 	// define the simulation year, month and day
-	const int start_year = 1960, end_year = 1962, start_month = 1, end_month = 12, start_day = 1, end_day = 31;
+	CString strFileName = _T("c:\\file1.txt");
+	if (!PathFileExists(strFileName))
+	{
+		MessageBox(TEXT("Nothing!"));
+	}
+	CStdioFile file;
+	if (!file.Open(strFileName, CFile::modeRead))
+	{
+		MessageBox(TEXT("Nothing!"));
+	}
+	std::vector<CString> vecResult;
+	CString strValue = _T("");
+	while (file.ReadString(strValue))
+	{
+		vecResult.push_back(strValue);
+	}
+
+	
+	file.Close();
+	
+	int start_year;
+	int end_year;
+	int output_start_year;
+	int output_end_year;
+	int spin_years;
+	int spin_interval;
+	int Check1 = 0;
+	int Check2 = 0;
+	int Check3 = 0;
+	int Check4 = 0;
+	int Check5 = 0;
+	int Check6 = 0;
+
+	start_year = _ttoi(vecResult[0]);
+	end_year = _ttoi(vecResult[1]);
+	output_start_year = _ttoi(vecResult[2]);
+	output_end_year = _ttoi(vecResult[3]);
+	spin_years = _ttoi(vecResult[4]);
+	spin_interval = _ttoi(vecResult[5]);
+	
+	Check1 = _ttoi(vecResult[6]);
+	Check2 = _ttoi(vecResult[7]);
+	Check3 = _ttoi(vecResult[8]);
+	Check4 = _ttoi(vecResult[9]);
+	Check5 = _ttoi(vecResult[10]);
+	Check6 = _ttoi(vecResult[11]);
+
+	const int start_month = 1, end_month = 12, start_day = 1, end_day = 31;
 	const int start_hour = 1, end_hour = 24;
 	//int       end_day; //The end of date in February varies between normal and leap year
 
 	// define the time period for outputting simulation results
 	// out_date_range outdate={first_year, last_year, first_month, last_month, first_day, last_day, first_hour, last_hour};
-	struct out_date_range out_date = { 1961, 1972, 1, 12, 1, 31, 1, 24 };
+	struct out_date_range out_date = { output_start_year, output_end_year, 1, 12, 1, 31, 1, 24 };
 
 	// define the number of spin years required for vegetation and soil carbon to reach the stable state with long-term
 	// climatology. Spin interval is the period of input climate data used for spin-up simulations
-	const int spin_years = 0, spin_interval = 6;
+	//const int spin_years = 0, spin_interval = 6;
 	bool      spin_flag = true;
 
 	// define the input file prefix and paths for model forcing data
+	CString strText;
+	CString strText_img;
+	CString strText_clim;
+	CString strText_out;
+	const char* filename = "c:\\file2.txt";
+	FILE* fp2 = NULL;
+	errno_t err = 0;
+	err = fopen_s(&fp2, filename, "rb");
+
+
+	char inDefFile_t[120];
+    char inImgFile_t[120];
+	char inFlowFile_t[120];
+	char inClimPath_t[120];
+	char outPutPath_t[120];
+
+	char inDefFile[120] = { 0 };
+	char inImgFile[120] = { 0 };
+	char inFlowFile[120] = { 0 };
+	char inClimPath[120] = { 0 };
+	char outPutPath[120] = { 0 };
+
+
+
+	int n = fread(inDefFile_t, 1, 120, fp2);
+	//int n2 = fread(inImgFile_t, 1, 120, fp2);
+
+	::wsprintfA(inDefFile, "%ls", (LPCTSTR)inDefFile_t);
+
+	strText = inDefFile;
+	//strText_img = inImgFile;
+	//MessageBox(strText);
+	strText = strText.Left(strText.ReverseFind('\\'));
+	strText = strText.Left(strText.ReverseFind('\\'));
+	//strText_clim = strText.Left(strText.ReverseFind('\\'));
+	strText += _T("\\");
+	strText_clim = strText+_T("clim");
+	strText_out = strText+_T("out");
+	strText += _T("geo");
+	
+	//MessageBox(strText_out);
+	
+
 	char  prefix[20] = "xf_ws";
-	char  inDefFile[120] = { "I://方老师//模型//Data//xf_ws//defs//" };
-	char  inImgFile[120] = { "I://方老师//模型//Data//xf_ws//geo//" };
-	char  inFlowFile[120] = { "I://方老师//模型//Data//xf_ws//geo//" };
-	char  inClimPath[120] = { "I://方老师//模型//Data//xf_ws//clim//" };
-	char  outPutPath[120] = { "I://方老师//模型//Data//xf_ws//out//" };
+
+	//char  inDefFile[120] = { "I://方老师//模型//Data//xf_ws//defs//" };
+	//char  inImgFile[120] = { "I://方老师//模型//Data//xf_ws//geo//" };
+	::wsprintfA(inImgFile, "%ls", (LPCTSTR)strText);
+	::wsprintfA(inFlowFile, "%ls", (LPCTSTR)strText);
+	::wsprintfA(inClimPath, "%ls", (LPCTSTR)strText_clim);
+	::wsprintfA(outPutPath, "%ls", (LPCTSTR)strText_out);
+	//char  inFlowFile[120] = { "I://方老师//模型//Data//xf_ws//geo//" };
+	//char  inClimPath[120] = { "I://方老师//模型//Data//xf_ws//clim//" };
+	//char  outPutPath[120] = { "I://方老师//模型//Data//xf_ws//out//" };
+
+	strcat_s(inDefFile, "\\");
+	strcat_s(inImgFile, "\\");
+	strcat_s(inFlowFile, "\\");
+	strcat_s(inClimPath, "\\");
+	strcat_s(outPutPath, "\\");
 
 	// multiple choice of routing algorithms
 	char  FlowTableName[40] = "xf_ws_flow_table_D8.dat";
@@ -251,17 +354,55 @@ void CMFCApplication5Dlg::OnBnClickedButton1()
 
 		command_argv[inx] = new char[120];
 	}
-	command_argv[1] = "-b";
+	/*command_argv[1] = "-b";
 	command_argv[2] = "-g";
-	int command_argc = 3;
+	int command_argc = 3;*/
 	//=======================================================================================================================
 	//xu. BUILD AND INITIAL THE ENDVIRONMENT FOR SIMULATION
 	//=======================================================================================================================
 	//printf("Starting initialization:: \n");
 
 	//construct and assign command line arguments
-	construct_command_line(command_argc, command_argv, command_line);
-	
+	//construct_command_line(command_argc, command_argv, command_line);
+	construct_command_line(command_line);
+	//-b 启动
+	if (Check1==1)
+	{
+		command_line->b = 1;
+	}
+
+	//-g启动
+	if (Check2==1)
+	{
+		command_line->gg = 1;
+	}
+
+	//-cf启动
+	if (Check3==1)
+	{
+		command_line->cf = 1;
+	}
+
+	//-re启动
+	if (Check4==1)
+	{
+		command_line->re = 1;
+	}
+
+	//-pmon启动
+	if (Check5==1)
+	{
+		command_line->pmon = 1;
+	}
+
+	//-pday启动
+	if (Check6==1)
+	{
+		command_line->pday = 1;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+
 	//xu. I sugguest should 1\ flow table then  2\construct patch and read images
 	num_patches = construct_routing_topology(patch, inFlowFile, FlowTableName, maxr, maxc);
 
@@ -455,3 +596,11 @@ void CMFCApplication5Dlg::OnBnClickedButton1()
 //================================================================================================================
 	
 
+
+
+void CMFCApplication5Dlg::OnBnClickedButton2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	exit(0);
+
+}

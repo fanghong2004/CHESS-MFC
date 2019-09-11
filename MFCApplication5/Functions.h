@@ -5,7 +5,7 @@
 // CHESS INITIALIZATION .function	                                                
 //---------------------------------------------------------------------------------------------------------------------------
 
-struct  command_line_object	*construct_command_line(int main_argc, char **, struct command_line_object *);
+struct  command_line_object	*construct_command_line(struct command_line_object *);
 int     construct_routing_topology(struct patch_object *, char *, char *, int, int);
 void	read_geo_images(struct patch_object *, struct command_line_object *, int, int, double, double, double, char *, char *, int, int, int, int *, int);
 void    construct_patch(struct patch_object *, struct command_line_object *, int, int, char *, char *, int);
